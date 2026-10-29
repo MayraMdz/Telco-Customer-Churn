@@ -70,19 +70,31 @@ El desarrollo sigue CRISP-DM:
 - Random Forest balanceado con feature engineering.
 - XGBoost balanceado con feature engineering.
 
+## Protocolo de selección
+
+La comparación entre modelos se hace **solo con validación cruzada estratificada de 5 folds sobre el entrenamiento** (Recall, Precision, F1, ROC-AUC, PR-AUC y Recall/Precision en el Top 20%, también con probabilidades out-of-fold de `cross_val_predict`).
+
+Criterio fijado de antemano: se elige el modelo de mayor PR-AUC en CV; si otro queda a menos de un desvío estándar, se consideran empatados y se elige el más simple (Regresión Logística < Árbol < Random Forest < XGBoost). Entre variantes igual de simples se prefiere la de mayor Recall.
+
+El modelo elegido se evalúa **una sola vez** en el conjunto de prueba.
+
+> Nota de transparencia: en la versión anterior el modelo (Random Forest) se había elegido mirando el test. En esta versión se corrigió el protocolo; el test ya había sido consultado antes, por lo que su resultado puede ser algo optimista.
+
 ## Modelo seleccionado
 
-Random Forest balanceado con feature engineering.
+**Regresión Logística balanceada.** XGBoost (PR-AUC 0,669 ± 0,021), Random Forest (0,664) y las dos regresiones (0,661 y 0,660) quedaron empatados dentro de un desvío; se eligió la más simple y de mayor Recall en CV (0,801).
 
-Resultados en holdout:
+Resultados en el test (evaluación única):
 
-- Recall: 0,805
-- Precision: 0,535
-- F1-score: 0,642
-- ROC-AUC: 0,844
-- PR-AUC: 0,659
+- Recall: 0,783
+- Precision: 0,504
+- F1-score: 0,614
+- ROC-AUC: 0,842
+- PR-AUC: 0,633
 
-En el Top 20% de mayor riesgo concentra 192 de 374 bajas reales (51,34%), con Precision @ Top 20% de 68,09% y Lift de 2,57x.
+En el Top 20% de mayor riesgo concentra 186 de 374 bajas reales (49,73%), con Precision @ Top 20% de 65,96% y Lift de 2,48x (en CV: 50,2%).
+
+El notebook incluye además un anexo de negocio con facturación en riesgo por segmento (facturación × antigüedad) y escenarios hipotéticos de costo de contacto contra valor retenido.
 
 ## Alcance
 
